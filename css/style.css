@@ -1,0 +1,432 @@
+/* ==========================================================================
+   好论点智检 - 自定义样式
+   补充 Tailwind CSS CDN 无法处理的自定义类和动画
+   ========================================================================== */
+
+/* 全局 */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 文本阴影 */
+.text-shadow {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   自定义按钮类（替代 Tailwind @apply 不工作的写法）
+   ========================================================================== */
+
+.btn-primary {
+    background-color: #3B82F6;
+    color: #ffffff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border: 2px solid #3B82F6;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background-color: #1E40AF;
+    border-color: #1E40AF;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+    background-color: #10B981;
+    color: #ffffff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border: 2px solid #10B981;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background-color: #047857;
+    border-color: #047857;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #3B82F6;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    border: 2px solid #3B82F6;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-outline:hover {
+    background-color: #3B82F6;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.btn-outline:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* ==========================================================================
+   卡片悬停效果
+   ========================================================================== */
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   表单输入
+   ========================================================================== */
+
+.form-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+    background-color: #ffffff;
+    color: #1F2937;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-input::placeholder {
+    color: #9CA3AF;
+}
+
+/* ==========================================================================
+   动画
+   ========================================================================== */
+
+/* 淡入 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 上滑淡入 */
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 页面加载时触发的 slide-up 动画 */
+.slide-up {
+    animation: slideUp 0.6s ease-out both;
+}
+
+.slide-up:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.slide-up:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* 旋转加载动画 */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 视口内滚动触发动画 */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   模态框增强
+   ========================================================================== */
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================================================
+   响应式调整
+   ========================================================================== */
+
+@media (max-width: 640px) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* 打印样式（可选） */
+@media print {
+    header,
+    nav,
+    footer,
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   无障碍：尊重用户的动画偏好设置
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ==========================================================================
+   选中服务选项的样式（与 JavaScript 协同）
+   ========================================================================== */
+
+.service-option {
+    border-color: #D1D5DB;
+    background-color: #ffffff;
+}
+
+.service-option.selected {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* 文件拖拽高亮 */
+#drop-area.dragover {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+
+#format-drop-area.dragover {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+
+/* ==========================================================================
+   多步骤向导：步骤指示器
+   ========================================================================== */
+
+.step-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #E5E7EB;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.step-circle-active {
+    background-color: #3B82F6;
+    color: #ffffff;
+}
+
+.step-circle-done {
+    background-color: #10B981;
+    color: #ffffff;
+}
+
+.step-circle-done::before {
+    content: '\2713';
+    font-size: 14px;
+}
+
+.step-circle-done {
+    font-size: 0; /* 隐藏数字 */
+}
+
+.step-line {
+    background-color: #E5E7EB;
+    transition: background-color 0.3s ease;
+}
+
+.step-line-active {
+    background-color: #10B981;
+}
+
+.step-panel {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ==========================================================================
+   格式输入 Tab 切换
+   ========================================================================== */
+
+.tab-btn {
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.tab-btn.tab-active {
+    color: #3B82F6;
+    border-bottom-color: #3B82F6;
+}
+
+.tab-btn:hover {
+    color: #3B82F6;
+}
+
+/* ==========================================================================
+   AI 选项卡片
+   ========================================================================== */
+
+.ai-option {
+    transition: all 0.2s ease;
+}
+
+.ai-option:hover {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+}
+
+.ai-option input[type="radio"]:checked ~ div {
+    color: #3B82F6;
+}
+
+.ai-option:has(input[type="radio"]:checked) {
+    border-color: #3B82F6;
+    background-color: #EFF6FF;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ==========================================================================
+   文本域
+   ========================================================================== */
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+/* ==========================================================================
+   用户中心 - 表格
+   ========================================================================== */
+
+table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+/* ==========================================================================
+   状态徽章
+   ========================================================================== */
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   模态框优化
+   ========================================================================== */
+
+#upload-modal .step-panel {
+    min-height: 200px;
+}
+
+/* 滚动条美化（可选） */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}

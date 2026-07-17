@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心 - 好论点智检</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: {
+                primary: '#3B82F6', secondary: '#10B981',
+                darkblue: '#1E40AF', lightblue: '#93C5FD'
+            } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+
+    <!-- 顶部导航 -->
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center space-x-2">
+                <img src="../images/logo.svg" alt="Logo" class="h-10 w-10">
+                <span class="text-xl font-bold text-gray-800">好论点智检</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="../index.html" class="text-gray-600 hover:text-primary transition-colors hidden sm:inline">
+                    <i class="fa fa-home mr-1"></i>首页
+                </a>
+                <div class="flex items-center space-x-2">
+                    <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div id="user-nickname" class="text-sm font-medium text-gray-800">用户</div>
+                        <div id="user-phone" class="text-xs text-gray-500">-</div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn-outline text-sm">
+                    <i class="fa fa-sign-out mr-1"></i>退出
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+
+        <!-- 概览卡片 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-xl shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 text-primary p-3 rounded-lg mr-3">
+                        <i class="fa fa-file-text-o text-xl"></i>
+                    </div>
+                    <div>
+                        <div id="stat-total" class="text-2xl font-bold text-gray-800">0</div>
+                        <div class="text-xs text-gray-500">总文档数</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-green-100 text-secondary p-3 rounded-lg mr-3">
+                        <i class="fa fa-check-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <div id="stat-completed" class="text-2xl font-bold text-gray-800">0</div>
+                        <div class="text-xs text-gray-500">已完成</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 text-yellow-600 p-3 rounded-lg mr-3">
+                        <i class="fa fa-spinner text-xl"></i>
+                    </div>
+                    <div>
+                        <div id="stat-processing" class="text-2xl font-bold text-gray-800">0</div>
+                        <div class="text-xs text-gray-500">处理中</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 text-purple-600 p-3 rounded-lg mr-3">
+                        <i class="fa fa-gift text-xl"></i>
+                    </div>
+                    <div>
+                        <div id="stat-quota" class="text-2xl font-bold text-gray-800">0</div>
+                        <div class="text-xs text-gray-500">剩余免费次数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文档列表 -->
+        <div class="bg-white rounded-xl shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h2 class="text-lg font-bold text-gray-800">
+                    <i class="fa fa-list-alt text-primary mr-2"></i>我的文档
+                </h2>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <select id="status-filter" class="form-input text-sm" style="width:auto;padding:0.4rem 0.8rem">
+                        <option value="">全部状态</option>
+                        <option value="pending">等待处理</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                        <option value="failed">处理失败</option>
+                    </select>
+                    <button id="refresh-btn" class="btn-outline text-sm">
+                        <i class="fa fa-refresh mr-1"></i>刷新
+                    </button>
+                    <a href="../index.html#upload" class="btn-primary text-sm">
+                        <i class="fa fa-upload mr-1"></i>上传新文档
+                    </a>
+                </div>
+            </div>
+
+            <!-- 表格 -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500">
+                            <th class="px-4 py-3 text-left font-medium">文档名称</th>
+                            <th class="px-4 py-3 text-left font-medium hidden md:table-cell">服务类型</th>
+                            <th class="px-4 py-3 text-left font-medium">状态</th>
+                            <th class="px-4 py-3 text-left font-medium hidden lg:table-cell">问题统计</th>
+                            <th class="px-4 py-3 text-left font-medium hidden sm:table-cell">创建时间</th>
+                            <th class="px-4 py-3 text-right font-medium">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doc-tbody" class="divide-y divide-gray-200">
+                        <!-- 动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 空状态 -->
+            <div id="empty-state" class="hidden py-16 text-center">
+                <i class="fa fa-inbox text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 mb-4">暂无文档记录</p>
+                <a href="../index.html#upload" class="btn-primary inline-flex">
+                    <i class="fa fa-upload mr-2"></i>立即上传文档
+                </a>
+            </div>
+
+            <!-- 加载中 -->
+            <div id="loading-state" class="py-16 text-center">
+                <i class="fa fa-spinner fa-spin text-3xl text-primary mb-3"></i>
+                <p class="text-gray-500">加载中...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 文档详情模态框 -->
+    <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto fade-in">
+            <div class="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800">文档详情</h3>
+                <button id="close-detail" class="text-gray-500 hover:text-gray-700" aria-label="关闭">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6" id="detail-content">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+        <div class="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg fade-in flex items-center">
+            <i class="fa fa-info-circle mr-2"></i>
+            <span id="toast-message">操作成功</span>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var currentUser = null;
+        var currentFilter = '';
+
+        // 初始化 - 检查登录
+        API.Auth.check().then(function (res) {
+            if (!res.logged_in) {
+                API.redirectToLogin();
+                return;
+            }
+            currentUser = res.user;
+            renderUser();
+            loadDocuments();
+        }).catch(function () {
+            API.redirectToLogin();
+        });
+
+        function renderUser() {
+            document.getElementById('user-nickname').textContent = currentUser.nickname || '用户';
+            document.getElementById('user-phone').textContent = currentUser.phone;
+            document.getElementById('stat-quota').textContent = currentUser.free_quota;
+        }
+
+        // 加载文档列表
+        function loadDocuments() {
+            showLoading(true);
+            API.Document.list(currentFilter).then(function (res) {
+                showLoading(false);
+                if (res.success) {
+                    renderDocs(res.documents);
+                    updateStats(res.documents);
+                } else {
+                    API.showToast(res.message || '加载失败', 'error');
+                }
+            }).catch(function () {
+                showLoading(false);
+                API.showToast('网络错误', 'error');
+            });
+        }
+
+        function showLoading(b) {
+            document.getElementById('loading-state').classList.toggle('hidden', !b);
+            document.getElementById('doc-tbody').classList.toggle('hidden', b);
+        }
+
+        function renderDocs(docs) {
+            var tbody = document.getElementById('doc-tbody');
+            var empty = document.getElementById('empty-state');
+
+            if (!docs || docs.length === 0) {
+                tbody.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            tbody.innerHTML = docs.map(function (d) {
+                var statusBadge = getStatusBadge(d.status, d.status_label);
+                var statText = d.status === 'completed'
+                    ? '<span class="text-gray-600">共 ' + d.total_issues + ' 项 / 已修复 ' + d.fixed_issues + '</span>'
+                    : '<span class="text-gray-400">-</span>';
+                var actions = '';
+                if (d.status === 'completed') {
+                    actions = '<button class="btn-primary text-xs detail-btn" data-id="' + d.id + '" style="padding:0.3rem 0.8rem">'
+                        + '<i class="fa fa-eye mr-1"></i>查看</button>'
+                        + '<a href="' + API.Document.downloadUrl(d.id) + '" class="btn-outline text-xs ml-2" style="padding:0.3rem 0.8rem">'
+                        + '<i class="fa fa-download mr-1"></i>下载</a>';
+                } else if (d.status === 'failed') {
+                    actions = '<button class="btn-outline text-xs detail-btn" data-id="' + d.id + '" style="padding:0.3rem 0.8rem">'
+                        + '<i class="fa fa-exclamation-triangle mr-1"></i>查看错误</button>';
+                } else {
+                    actions = '<span class="text-gray-400 text-xs">处理中...</span>';
+                }
+
+                return '<tr class="hover:bg-gray-50">'
+                    + '<td class="px-4 py-3">'
+                    + '<div class="flex items-center">'
+                    + '<i class="fa ' + getFileIcon(d.file_ext) + ' text-primary mr-2"></i>'
+                    + '<div>'
+                    + '<div class="text-gray-800 font-medium truncate" style="max-width:240px" title="' + escapeHtml(d.original_filename) + '">' + escapeHtml(d.original_filename) + '</div>'
+                    + '<div class="text-xs text-gray-400">' + (d.ai_provider || '') + ' ' + (d.ai_model || '') + '</div>'
+                    + '</div></div></td>'
+                    + '<td class="px-4 py-3 hidden md:table-cell"><span class="text-gray-600">' + (d.service_type_label || d.service_type) + '</span></td>'
+                    + '<td class="px-4 py-3">' + statusBadge + '</td>'
+                    + '<td class="px-4 py-3 hidden lg:table-cell">' + statText + '</td>'
+                    + '<td class="px-4 py-3 hidden sm:table-cell text-gray-500 text-xs">' + API.formatDateTime(d.created_at) + '</td>'
+                    + '<td class="px-4 py-3 text-right whitespace-nowrap">' + actions + '</td>'
+                    + '</tr>';
+            }).join('');
+
+            // 绑定查看按钮
+            tbody.querySelectorAll('.detail-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    showDetail(parseInt(btn.dataset.id, 10));
+                });
+            });
+        }
+
+        function updateStats(docs) {
+            var total = docs.length;
+            var completed = docs.filter(function (d) { return d.status === 'completed'; }).length;
+            var processing = docs.filter(function (d) {
+                return d.status === 'processing' || d.status === 'pending';
+            }).length;
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-completed').textContent = completed;
+            document.getElementById('stat-processing').textContent = processing;
+        }
+
+        function getStatusBadge(status, label) {
+            var map = {
+                pending: ['bg-gray-100', 'text-gray-600'],
+                processing: ['bg-yellow-100', 'text-yellow-700'],
+                completed: ['bg-green-100', 'text-green-700'],
+                failed: ['bg-red-100', 'text-red-700'],
+            };
+            var cls = map[status] || ['bg-gray-100', 'text-gray-600'];
+            return '<span class="inline-block px-2 py-1 rounded text-xs ' + cls[0] + ' ' + cls[1] + '">'
+                + (label || status) + '</span>';
+        }
+
+        function getFileIcon(ext) {
+            var map = { pdf: 'fa-file-pdf-o', docx: 'fa-file-word-o', doc: 'fa-file-word-o', txt: 'fa-file-text-o', md: 'fa-file-text-o' };
+            return map[ext] || 'fa-file-o';
+        }
+
+        function escapeHtml(s) {
+            if (!s) return '';
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        // 显示详情
+        function showDetail(id) {
+            var modal = document.getElementById('detail-modal');
+            var content = document.getElementById('detail-content');
+            content.innerHTML = '<div class="text-center py-12"><i class="fa fa-spinner fa-spin text-3xl text-primary"></i><p class="text-gray-500 mt-3">加载中...</p></div>';
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            API.Document.detail(id).then(function (res) {
+                if (!res.success) {
+                    content.innerHTML = '<p class="text-red-500">' + escapeHtml(res.message) + '</p>';
+                    return;
+                }
+                renderDetail(res.document, res.issues);
+            }).catch(function () {
+                content.innerHTML = '<p class="text-red-500">加载失败</p>';
+            });
+        }
+
+        function renderDetail(doc, issues) {
+            var content = document.getElementById('detail-content');
+            var issueRows = (issues || []).map(function (it) {
+                var statusBadge = {
+                    fixed: '<span class="text-green-600">已修复</span>',
+                    manual: '<span class="text-yellow-600">需手动</span>',
+                    suggested: '<span class="text-purple-600">建议项</span>',
+                }[it.status] || it.status;
+                return '<tr>'
+                    + '<td class="px-3 py-2 border">' + (it.page || '-') + '</td>'
+                    + '<td class="px-3 py-2 border">' + (it.line || '-') + '</td>'
+                    + '<td class="px-3 py-2 border">' + escapeHtml(it.issue_type) + '</td>'
+                    + '<td class="px-3 py-2 border">' + escapeHtml(it.description) + '</td>'
+                    + '<td class="px-3 py-2 border">' + escapeHtml(it.suggestion) + '</td>'
+                    + '<td class="px-3 py-2 border">' + statusBadge + '</td>'
+                    + '</tr>';
+            }).join('') || '<tr><td colspan="6" class="px-3 py-4 text-center text-gray-400 border">暂无问题记录</td></tr>';
+
+            content.innerHTML =
+                '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">'
+                + statCard('总问题', doc.total_issues, 'blue')
+                + statCard('已修复', doc.fixed_issues, 'green')
+                + statCard('需手动', doc.manual_issues, 'yellow')
+                + statCard('建议项', doc.suggested_issues, 'purple')
+                + '</div>'
+                + '<div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm">'
+                + '<p><strong>文档：</strong>' + escapeHtml(doc.original_filename) + '</p>'
+                + '<p class="mt-1"><strong>服务类型：</strong>' + (doc.service_type_label || doc.service_type) + '</p>'
+                + '<p class="mt-1"><strong>AI 模型：</strong>' + escapeHtml(doc.ai_provider || '-') + ' / ' + escapeHtml(doc.ai_model || '-') + '</p>'
+                + '<p class="mt-1"><strong>处理时间：</strong>' + API.formatDateTime(doc.completed_at) + '</p>'
+                + '</div>'
+                + (doc.result_summary ? '<div class="mb-6"><h4 class="font-semibold mb-2 text-gray-800">总体结论</h4><div class="bg-gray-50 p-4 rounded text-sm text-gray-700">' + escapeHtml(doc.result_summary).replace(/\n/g, '<br>') + '</div></div>' : '')
+                + (doc.error_message ? '<div class="mb-6 bg-red-50 p-4 rounded text-red-700 text-sm"><strong>错误信息：</strong>' + escapeHtml(doc.error_message) + '</div>' : '')
+                + '<h4 class="font-semibold mb-3 text-gray-800">问题详情</h4>'
+                + '<div class="overflow-x-auto"><table class="min-w-full text-xs border">'
+                + '<thead><tr class="bg-gray-100">'
+                + '<th class="px-3 py-2 border text-left">页码</th>'
+                + '<th class="px-3 py-2 border text-left">行号</th>'
+                + '<th class="px-3 py-2 border text-left">问题类型</th>'
+                + '<th class="px-3 py-2 border text-left">描述</th>'
+                + '<th class="px-3 py-2 border text-left">建议</th>'
+                + '<th class="px-3 py-2 border text-left">状态</th>'
+                + '</tr></thead><tbody>' + issueRows + '</tbody></table></div>'
+                + (doc.status === 'completed'
+                    ? '<div class="mt-6 text-right"><a href="' + API.Document.downloadUrl(doc.id) + '" class="btn-primary"><i class="fa fa-download mr-2"></i>下载完整报告</a></div>'
+                    : '');
+        }
+
+        function statCard(label, value, color) {
+            var colors = {
+                blue: 'bg-blue-50 text-primary',
+                green: 'bg-green-50 text-secondary',
+                yellow: 'bg-yellow-50 text-yellow-600',
+                purple: 'bg-purple-50 text-purple-600',
+            };
+            return '<div class="' + colors[color] + ' p-4 rounded text-center">'
+                + '<div class="text-2xl font-bold">' + (value || 0) + '</div>'
+                + '<div class="text-xs">' + label + '</div></div>';
+        }
+
+        // 事件绑定
+        document.getElementById('status-filter').addEventListener('change', function () {
+            currentFilter = this.value;
+            loadDocuments();
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', loadDocuments);
+
+        document.getElementById('close-detail').addEventListener('click', function () {
+            document.getElementById('detail-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        });
+
+        document.getElementById('detail-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', function () {
+            if (!confirm('确定退出登录吗？')) return;
+            API.Auth.logout().then(function () {
+                location.href = '../index.html';
+            }).catch(function () {
+                location.href = '../index.html';
+            });
+        });
+
+        // ESC 关闭
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                var modal = document.getElementById('detail-modal');
+                if (!modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            }
+        });
+    })();
+    </script>
+</body>
+</html>
