@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毕业设计任务书生成 - 好论点智检</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: {
+                primary: '#c9a96e', secondary: '#4a6741',
+                darkblue: '#1a1a2e', lightblue: '#e8d5a3'
+            } } }
+        }
+    </script>
+    <style>
+        .task-section { border-left: 4px solid #c9a96e; padding-left: 1rem; margin-bottom: 1.5rem; }
+        .task-section h4 { color: #1a1a2e; font-weight: 600; margin-bottom: 0.5rem; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform: translateY(0);} }
+    </style>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap'>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen">
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="../index.html" class="flex items-center space-x-2">
+                <img src="../images/logo.svg" alt="Logo" class="h-10 w-10">
+                <span class="text-xl font-bold text-gray-800">好论点智检</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="../index.html" class="text-gray-600 hover:text-primary transition-colors hidden sm:inline"><i class="fa fa-home mr-1"></i>首页</a>
+                <div class="flex items-center space-x-2">
+                    <div class="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white"><i class="fa fa-user"></i></div>
+                    <div class="hidden sm:block">
+                        <div id="user-nickname" class="text-sm font-medium text-gray-800">用户</div>
+                        <div id="user-phone" class="text-xs text-gray-500">-</div>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn-outline text-sm"><i class="fa fa-sign-out mr-1"></i>退出</button>
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2"><i class="fa fa-tasks text-primary mr-2"></i>毕业设计任务书生成</h1>
+            <p class="text-gray-600">输入论文题目，AI 智能生成完整的毕业设计任务书</p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4"><i class="fa fa-edit text-primary mr-2"></i>填写信息</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-1">论文题目 <span class="text-red-500">*</span></label>
+                            <input type="text" id="thesis-title" class="form-input" placeholder="例如：基于深度学习的图像识别系统设计与实现">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-1">专业名称</label>
+                            <input type="text" id="major" class="form-input" placeholder="例如：计算机科学与技术">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-1">学历层次</label>
+                            <select id="degree" class="form-input">
+                                <option value="本科">本科</option>
+                                <option value="硕士">硕士</option>
+                                <option value="专科">专科</option>
+                            </select>
+                        </div>
+
+
+
+
+                        <div class="mt-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-1"><i class="fa fa-upload mr-1"></i>上传任务书模板（可选）</label>
+                            <p class="text-xs text-gray-400 mb-2">上传学校模板，AI将自动识别字段并填充内容</p>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors" id="tpl-drop">
+                                <i class="fa fa-file-code-o text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-500 text-sm">点击或拖拽上传模板</p>
+                                <p class="text-gray-400 text-xs">支持 DOCX / PDF / TXT / MD</p>
+                                <p id="tpl-name" class="text-primary mt-2 text-sm font-semibold hidden"></p>
+                                <input type="file" id="tpl-input" class="hidden" accept=".docx,.pdf,.txt,.md,.doc">
+                            </div>
+                            <div id="tpl-actions" class="hidden mt-1">
+                                <button type="button" id="tpl-remove" class="text-red-500 text-xs hover:underline"><i class="fa fa-trash mr-1"></i>移除模板</button>
+                            </div>
+                        </div>
+
+                        <button id="generate-btn" class="w-full btn-primary py-3 text-lg shadow-md"><i class="fa fa-magic mr-2"></i>生成任务书</button>
+                        <p class="text-xs text-gray-400 text-center"><i class="fa fa-info-circle mr-1"></i>生成结果仅供参考，请根据实际情况调整</p>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-2">
+                <div id="empty-result" class="bg-white rounded-2xl shadow-sm p-12 text-center" style="border: 1px solid var(--color-border);">
+                    <i class="fa fa-tasks text-6xl text-gray-200 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">任务书将在这里显示</h3>
+                    <p class="text-gray-500">在左侧填写论文题目并点击"生成任务书"按钮</p>
+                </div>
+                <div id="loading-result" class="bg-white rounded-2xl shadow-sm p-12 text-center hidden" style="border: 1px solid var(--color-border);">
+                    <div class="inline-block w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">正在生成任务书...</h3>
+                    <p class="text-gray-500" id="loading-step">AI 正在分析论文题目并构思任务书内容</p>
+                </div>
+                <div id="result-container" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="bg-gradient-to-r from-primary to-darkblue text-white px-6 py-4 flex justify-between items-center">
+                            <h3 class="font-bold text-lg"><i class="fa fa-file-text-o mr-2"></i>毕业设计任务书</h3>
+                            <div class="flex gap-2">
+                                <button id="copy-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-1 rounded text-sm transition-colors"><i class="fa fa-copy mr-1"></i>复制全文</button>
+                                <button id="download-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-1 rounded text-sm transition-colors"><i class="fa fa-download mr-1"></i>下载</button>
+                            </div>
+                        </div>
+                        <div class="p-6 md:p-8" id="task-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+        <div class="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg fade-in flex items-center">
+            <i class="fa fa-info-circle mr-2"></i><span id="toast-message">操作成功</span>
+        </div>
+    </div>
+    <script src="../js/api.js"></script>
+    <script>
+    (function () {
+        'use strict';
+        var currentUser = null, currentResult = null;
+        API.Auth.check().then(function (res) {
+            if (!res.logged_in) { API.redirectToLogin(); return; }
+            currentUser = res.user;
+            document.getElementById('user-nickname').textContent = currentUser.nickname || '用户';
+            document.getElementById('user-phone').textContent = currentUser.phone;
+        }).catch(function () { API.redirectToLogin(); });
+        document.getElementById('logout-btn').addEventListener('click', function () {
+            if (!confirm('确定退出登录吗？')) return;
+            API.Auth.logout().then(function () { location.href = '../index.html'; }).catch(function () { location.href = '../index.html'; });
+        });
+        document.getElementById('tpl-drop').addEventListener('click', function () { document.getElementById('tpl-input').click(); });
+        ['dragenter','dragover'].forEach(function (e) { document.getElementById('tpl-drop').addEventListener(e, function (ev) { ev.preventDefault(); document.getElementById('tpl-drop').classList.add('dragover'); }); });
+        ['dragleave','drop'].forEach(function (e) { document.getElementById('tpl-drop').addEventListener(e, function (ev) { ev.preventDefault(); document.getElementById('tpl-drop').classList.remove('dragover'); }); });
+        document.getElementById('tpl-drop').addEventListener('drop', function (ev) { var f = ev.dataTransfer.files[0]; if (f) handleTpl(f); });
+        document.getElementById('tpl-input').addEventListener('change', function (ev) { var f = ev.target.files[0]; if (f) handleTpl(f); });
+        document.getElementById('tpl-remove').addEventListener('click', function () { tplFile = null; document.getElementById('tpl-name').classList.add('hidden'); document.getElementById('tpl-name').textContent = ''; document.getElementById('tpl-actions').classList.add('hidden'); document.getElementById('tpl-input').value = ''; showToast('模板已移除','success'); });
+        function handleTpl(file) {
+            var ok = ['.docx','.pdf','.txt','.md','.doc'];
+            var ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+            if (ok.indexOf(ext) === -1) { showToast('不支持的文件格式','error'); return; }
+            if (file.size > 20 * 1024 * 1024) { showToast('文件过大，请小于20MB','error'); return; }
+            tplFile = file;
+            document.getElementById('tpl-name').textContent = file.name + ' (' + (file.size/1024/1024).toFixed(2) + ' MB)';
+            document.getElementById('tpl-name').classList.remove('hidden');
+            document.getElementById('tpl-actions').classList.remove('hidden');
+        }
+
+        document.getElementById('generate-btn').addEventListener('click', function () {
+            var title = document.getElementById('thesis-title').value.trim();
+            if (!title) { showToast('请输入论文题目','error'); document.getElementById('thesis-title').focus(); return; }
+            showLoading(true); currentResult = null;
+            var steps = ['AI 正在分析论文题目...','正在构思研究内容与方案...','正在规划时间安排...','正在整理参考文献...','正在生成最终任务书...'];
+            var stepIdx = 0, stepEl = document.getElementById('loading-step');
+            var stepInterval = setInterval(function () { stepIdx = Math.min(stepIdx + 1, steps.length - 1); if (stepEl) stepEl.textContent = steps[stepIdx]; }, 1200);
+            var apiBase = window.API && API.base ? API.base.replace('/api','') + '/api' : '/api';
+            var useTemplate = tplFile !== null;
+            if (useTemplate) {
+                var fd = new FormData();
+                fd.append('thesis_title', title);
+                fd.append('ai_provider', 'deepseek');
+                fd.append('template_file', tplFile);
+                fetch(apiBase + '/taskbook/generate.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    clearInterval(stepInterval); showLoading(false);
+                    if (res.success) {
+                        currentResult = adaptTaskbookResult(res.data);
+                        renderResult(currentResult);
+                        showToast('任务书生成成功','success');
+                    } else { showToast(res.message || '生成失败','error'); }
+                }).catch(function (err) { clearInterval(stepInterval); showLoading(false); showToast('请求失败: ' + (err.message || '未知错误'),'error'); });
+            } else {
+                var data = { title: title, major: document.getElementById('major').value.trim(), degree: document.getElementById('degree').value, ai_provider: 'deepseek' };
+                API.Task.generate(data).then(function (res) {
+                    clearInterval(stepInterval); showLoading(false);
+                    if (res.success) { currentResult = res.result; renderResult(res.result); showToast('任务书生成成功','success'); }
+                    else { showToast(res.message || '生成失败','error'); }
+                }).catch(function (err) { clearInterval(stepInterval); showLoading(false); showToast('请求失败: ' + (err.message || '未知错误'),'error'); });
+            }
+        });
+        function showLoading(show) {
+            document.getElementById('empty-result').classList.toggle('hidden', show);
+            document.getElementById('loading-result').classList.toggle('hidden', !show);
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('generate-btn').disabled = show;
+            document.getElementById('generate-btn').innerHTML = show ? '<i class="fa fa-spinner fa-spin mr-2"></i>生成中...' : '<i class="fa fa-magic mr-2"></i>生成任务书';
+        }
+        function adaptTaskbookResult(d) {
+            return {
+                title: d.thesis_title || '',
+                major: '',
+                degree: '',
+                basic_tasks: d.requirements || '',
+                schedule: (d.schedule || []).map(function(s){ return { phase: s.phase || '', time: s.phase || '', content: s.task || '' }; }),
+                research_content: (d.research_content || '') + (d.requirements_analysis ? ('【需求分析】' + d.requirements_analysis) : '') + (d.outline_design ? ('【概要设计】' + d.outline_design) : ''),
+                references: d.references || [],
+                expected_outcome: d.topic_source || ''
+            };
+        }
+        function renderResult(r) {
+            var c = document.getElementById('result-container'), ct = document.getElementById('task-content'); c.classList.remove('hidden');
+            var h = '<div class="text-center mb-8 border-b border-gray-200 pb-6"><h2 class="text-2xl font-bold text-gray-800 mb-2">毕业设计（论文）任务书</h2>';
+            if (r.title) h += '<p class="text-lg text-gray-600">' + esc(r.title) + '</p>';
+            h += '</div><div class="mb-6 overflow-x-auto"><table class="min-w-full text-sm border border-gray-200"><tbody>';
+            var rows = [];
+            if (r.major) rows.push(['专业',r.major]);
+            if (r.degree) rows.push(['学历层次',r.degree]); 
+            rows.forEach(function (row, i) { h += '<tr class="' + (i%2===0?'bg-gray-50':'bg-white') + '"><td class="px-4 py-2 border font-medium text-gray-700 w-32">' + esc(row[0]) + '</td><td class="px-4 py-2 border">' + esc(row[1]) + '</td></tr>'; });
+            h += '</tbody></table></div>';
+            if (r.basic_tasks) { h += sec('fa-bullseye','一、基本任务与要求', nl(esc(r.basic_tasks))); }
+            if (r.schedule) {
+                h += '<div class="task-section"><h4><i class="fa fa-calendar mr-2"></i>二、时间安排</h4>';
+                if (Array.isArray(r.schedule)) {
+                    h += '<div class="overflow-x-auto"><table class="min-w-full text-sm border border-gray-200"><thead><tr class="bg-gray-100"><th class="px-3 py-2 border text-left">阶段</th><th class="px-3 py-2 border text-left">时间</th><th class="px-3 py-2 border text-left">主要工作内容</th></tr></thead><tbody>';
+                    r.schedule.forEach(function(s) { h += '<tr class="bg-white"><td class="px-3 py-2 border font-medium">' + esc(s.phase||'') + '</td><td class="px-3 py-2 border">' + esc(s.time||'') + '</td><td class="px-3 py-2 border">' + nl(esc(s.content||'')) + '</td></tr>'; });
+                    h += '</tbody></table></div>';
+                } else { h += nl(esc(r.schedule)); }
+                h += '</div>';
+            }
+            if (r.research_content) { h += sec('fa-flask','三、研究内容', nl(esc(r.research_content))); }
+            if (r.references) {
+                h += '<div class="task-section"><h4><i class="fa fa-book mr-2"></i>四、参考文献</h4>';
+                if (Array.isArray(r.references)) { h += '<ol class="list-decimal list-inside text-sm text-gray-700 space-y-1">'; r.references.forEach(function(ref){ h += '<li>' + esc(ref) + '</li>'; }); h += '</ol>'; }
+                else { h += nl(esc(r.references)); }
+                h += '</div>';
+            }
+            if (r.expected_outcome) { h += sec('fa-trophy','五、预期成果', nl(esc(r.expected_outcome))); }
+            ct.innerHTML = h; c.scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+        function sec(icon, title, body) { return '<div class="task-section"><h4><i class="' + icon + ' mr-2"></i>' + title + '</h4><div class="text-gray-700 text-sm leading-relaxed">' + body + '</div></div>'; }
+        function nl(s) { return s ? s.replace(/\n/g,'<br>') : ''; }
+        function esc(s) { if (!s) return ''; return String(s).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            if (!currentResult) return; var text = buildTxt(currentResult);
+            if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function(){ showToast('已复制到剪贴板','success'); }).catch(function(){ fbCopy(text); }); } else { fbCopy(text); }
+        });
+        function fbCopy(t) { var ta = document.createElement('textarea'); ta.value = t; ta.style.cssText='position:fixed;opacity:0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); showToast('已复制到剪贴板','success'); } catch(e) { showToast('复制失败','error'); } document.body.removeChild(ta); }
+        document.getElementById('download-btn').addEventListener('click', function() {
+            if (!currentResult) return; var text = buildTxt(currentResult);
+            var blob = new Blob([text],{type:'text/plain;charset=utf-8'}); var url = URL.createObjectURL(blob);
+            var a = document.createElement('a'); a.href = url; a.download = (currentResult.title||'毕业设计任务书').replace(/[\\/:*?"<>|]/g,'') + '.txt';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast('下载已开始','success');
+        });
+        function buildTxt(r) {
+            var L = ['毕业设计（论文）任务书',''];
+            if (r.title) L.push('题目：'+r.title); 
+            if (r.major) L.push('专业：'+r.major); if (r.degree) L.push('学历层次：'+r.degree);
+             L.push('');
+            if (r.basic_tasks) { L.push('一、基本任务与要求'); L.push(r.basic_tasks); L.push(''); }
+            if (r.schedule) { L.push('二、时间安排'); if (Array.isArray(r.schedule)) { r.schedule.forEach(function(s){ L.push((s.phase||'')+' | '+(s.time||'')+' | '+(s.content||'')); }); } else { L.push(r.schedule); } L.push(''); }
+            if (r.research_content) { L.push('三、研究内容'); L.push(r.research_content); L.push(''); }
+            if (r.references) { L.push('四、参考文献'); if (Array.isArray(r.references)) { r.references.forEach(function(ref,i){ L.push((i+1)+'. '+ref); }); } else { L.push(r.references); } L.push(''); }
+            if (r.expected_outcome) { L.push('五、预期成果'); L.push(r.expected_outcome); L.push(''); }
+            return L.join('\n');
+        }
+        function showToast(msg, type) { if (window.API && API.showToast) { API.showToast(msg, type); return; } var t=document.getElementById('toast'),m=document.getElementById('toast-message'); if(!t||!m)return; m.textContent=msg||'操作成功'; t.classList.remove('hidden'); var b=t.querySelector('div'); if(b){b.classList.remove('bg-gray-800','bg-red-600','bg-green-600'); if(type==='error')b.classList.add('bg-red-600');else if(type==='success')b.classList.add('bg-green-600');else b.classList.add('bg-gray-800');} setTimeout(function(){t.classList.add('hidden');},2500); }
+    })();
+    </script>
+</body>
+</html>
