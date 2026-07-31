@@ -1,0 +1,18 @@
+{
+  "name": "haolundian-zhijian",
+  "version": "1.0.0",
+  "description": "好论点智检 - 智能文档检测平台",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Open index.html in browser'",
+    "build": "echo 'Static site - no build step required'"
+  },
+  "keywords": [
+    "document",
+    "check",
+    "academic",
+    "static-site"
+  ],
+  "author": "好论点智检",
+  "license": "MIT"
+}
